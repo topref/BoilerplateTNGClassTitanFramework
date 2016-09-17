@@ -20,6 +20,12 @@ function mytheme_require_plugins() {
     tgmpa($plugins, $config);
 }
 
+// Подключение файлов переводов
+function my_theme_setup(){
+    load_theme_textdomain('my_theme', get_template_directory() . '/languages');
+}
+add_action('after_setup_theme', 'my_theme_setup');
+
 // Количество слов в цитата
 function custom_citation_length($length) {
   return 20;
