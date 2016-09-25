@@ -1,7 +1,7 @@
 <?php
 function my_theme_create_options() {
     // Инициализация фреймворка
-    $titan = TitanFramework::getInstance('my-theme');
+    $titan = TitanFramework::getInstance('radial');
 
     // Создание админ панели
     $panel = $titan->createAdminPanel(array(

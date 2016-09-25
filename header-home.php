@@ -8,27 +8,15 @@
     <meta name="description" content="<?php bloginfo('description'); ?>">
     <!--[if IE]><script src="<?php bloginfo('template_url'); ?>/js/html5shiv.min.js"></script><![endif]-->
     <title><?php bloginfo('name'); ?> | <?php is_home() ? bloginfo('description') : wp_title(''); ?></title>
-    <?php wp_head(); ?>
+<?php wp_head(); ?>
 </head>
 <body>
 <div class="wrapper">
-    <header class="page">
+    <header>
         <div class="container">
             <div class="header-table table">
                 <div class="header-cell cell">
-                    <?php
-                    $imgID = $titan->getOption('logo');
-                    $imgSrc = $imgID;
-                    if (is_numeric($imgID)) {
-                        $imageAttachment = wp_get_attachment_image_src($imgID, 'full', false);
-                        $imgSrc = $imageAttachment[0];
-                    }
-                    ?>
-                    <?php if ($imgSrc): ?>
-                        <a href="<?php bloginfo('url'); ?>" class="header__logo"><img src="<?php echo esc_url($imgSrc); ?>" alt=""/></a>
-                    <?php else: ?>
-                        <a href="<?php bloginfo('url'); ?>" class="header__logo"><img src="<?php bloginfo('template_url'); ?>/img/logo.png" alt=""/></a>
-                    <?php endif; ?>
+                    <a href="<?php bloginfo('url'); ?>" class="header__logo"><img src="<?php bloginfo('template_url'); ?>/img/logo.png" alt=""/></a>
                 </div>
                 <div class="header-cell header-cell_menu cell">
                     <div class="header-menu__icon">
@@ -37,14 +25,14 @@
                         <span></span>
                     </div>
                     <?php wp_nav_menu(array(
-                        'theme_location' => 'menu',
-                        'container' => false,
-                        'menu_class' => 'header-menu',
-                        'echo' => true,
-                        'link_before' => '<span>',
-                        'link_after' => '</span>',
-                        'items_wrap' => '<ul id="%1$s" class="%2$s">%3$s</ul>',
-                        'walker'=> new True_Walker_Nav_Menu()
+                            'theme_location' => 'menu',
+                            'container' => false,
+                            'menu_class' => 'header-menu',
+                            'echo' => true,
+                            'link_before' => '<span>',
+                            'link_after' => '</span>',
+                            'items_wrap' => '<ul id="%1$s" class="%2$s">%3$s</ul>',
+                            'walker'=> new True_Walker_Nav_Menu()
                     )); ?>
                 </div>
                 <div class="header-cell cell">

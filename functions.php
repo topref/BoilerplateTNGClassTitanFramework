@@ -1,11 +1,15 @@
 <?php
 
-// Подключение Titan Framework пользовательских опций
+/**
+ * Подключение Titan Framework пользовательских опций
+ */
 require_once('titan-framework/titan-framework-embedder.php');
 require_once('titan-framework/options.php');
 add_action('tf_create_options', 'my_theme_create_options');
 
-// Подключение TGM-Plugin-Activation для установки необходимых плагинов
+/**
+ * Подключение TGM-Plugin-Activation для установки необходимых плагинов
+ */
 require_once dirname(__FILE__ ) . '/tgm-class-activation/class-tgm-plugin-activation.php';
 add_action('tgmpa_register','mytheme_require_plugins');
 function mytheme_require_plugins() {
@@ -19,28 +23,38 @@ function mytheme_require_plugins() {
     tgmpa($plugins, $config);
 }
 
-// Подключение файлов переводов
-function my_theme_setup(){
-    load_theme_textdomain('my_theme', get_template_directory() . '/languages');
-}
-add_action('after_setup_theme', 'my_theme_setup');
-
-// Количество слов в цитата
+/**
+ * Количество слов в цитата
+ *
+ * @param $length
+ *
+ * @return int
+ */
 function custom_citation_length($length) {
   return 20;
 }
 add_filter('excerpt_length', 'custom_citation_length', 999);
 
-// Замена символа [...]
+/**
+ * Замена символа [...]
+ *
+ * @param $text
+ *
+ * @return string
+ */
 function trim_excerpt($text) {
 	return rtrim($text,'[&hellip], [...]') . '...';
 }
 add_filter('get_the_excerpt', 'trim_excerpt');
 
-// Скрываем админ панель
+/**
+ * Скрываем админ панель
+ */
 add_filter('show_admin_bar', '__return_false');
 
-// Подключаем скрипты и стили
+/**
+ * Подключаем скрипты и стили
+ */
 function load_style_script() {
     wp_deregister_script('jquery');
 
@@ -57,25 +71,99 @@ function load_style_script() {
 }
 add_action('wp_enqueue_scripts', 'load_style_script');
 
-// Добавляем поддержку миниатюр
+/**
+ * Добавляем поддержку миниатюр
+ */
 add_theme_support('post-thumbnails');
 set_post_thumbnail_size(192,193);
 
-// Регистрация меню в футере
-register_nav_menu('menu', 'Меню в футере');
+/**
+ * Регистрация меню в футере
+ *
+ * Class True_Walker_Nav_Menu
+ */
+class True_Walker_Nav_Menu extends Walker_Nav_Menu {
+    /**
+     * @see Walker::start_el()
+     * @since 3.0.0
+     *
+     * @param string $output
+     * @param object $item Объект элемента меню, подробнее ниже.
+     * @param int $depth Уровень вложенности элемента меню.
+     * @param object $args Параметры функции wp_nav_menu
+     */
+    function start_el(&$output, $item, $depth, $args) {
+        global $wp_query;
+        /*
+         * Некоторые из параметров объекта $item
+         * ID - ID самого элемента меню, а не объекта на который он ссылается
+         * menu_item_parent - ID родительского элемента меню
+         * classes - массив классов элемента меню
+         * post_date - дата добавления
+         * post_modified - дата последнего изменения
+         * post_author - ID пользователя, добавившего этот элемент меню
+         * title - заголовок элемента меню
+         * url - ссылка
+         * attr_title - HTML-атрибут title ссылки
+         * xfn - атрибут rel
+         * target - атрибут target
+         * current - равен 1, если является текущим элементов
+         * current_item_ancestor - равен 1, если текущим является вложенный элемент
+         * current_item_parent - равен 1, если текущим является вложенный элемент
+         * menu_order - порядок в меню
+         * object_id - ID объекта меню
+         * type - тип объекта меню (таксономия, пост, произвольно)
+         * object - какая это таксономия / какой тип поста (page /category / post_tag и т д)
+         * type_label - название данного типа с локализацией (Рубрика, Страница)
+         * post_parent - ID родительского поста / категории
+         * post_title - заголовок, который был у поста, когда он был добавлен в меню
+         * post_name - ярлык, который был у поста при его добавлении в меню
+         */
+        $indent = ( $depth ) ? str_repeat( "\t", $depth ) : '';
+        // Генерируем строку с CSS-классами элемента меню
+        $class_names = $value = '';
+        $classes = empty( $item->classes ) ? array() : (array) $item->classes;
+        $classes[] = 'menu-item-' . $item->ID;
+        // функция join превращает массив в строку
+        $class_names = join( ' ', apply_filters( 'nav_menu_css_class', array_filter( $classes ), $item, $args ) );
+        $class_names = ' class="' . esc_attr( $class_names ) . '"';
+        // Генерируем ID элемента
+        $id = apply_filters( 'nav_menu_item_id', 'menu-item-'. $item->ID, $item, $args );
+        $id = strlen( $id ) ? ' id="' . esc_attr( $id ) . '"' : '';
+        // Генерируем элемент меню
+        $output .= $indent . '<li' . $id . $value . $class_names .'>';
+        // атрибуты элемента, title="", rel="", target="" и href=""
+        $attributes  = ! empty( $item->attr_title ) ? ' title="'  . esc_attr( $item->attr_title ) .'"' : '';
+        $attributes .= ! empty( $item->target )     ? ' target="' . esc_attr( $item->target     ) .'"' : '';
+        $attributes .= ! empty( $item->xfn )        ? ' rel="'    . esc_attr( $item->xfn        ) .'"' : '';
+        $attributes .= ! empty( $item->url )        ? ' href="'   . esc_attr( $item->url        ) .'"' : '';
+
+        // ссылка и околоссылочный текст
+        $item_output = $args->before;
+        $item_output .= '<a class="header-menu__link"'. $attributes .'>';
+        $item_output .= $args->link_before . apply_filters( 'the_title', $item->title, $item->ID ) . $args->link_after;
+        $item_output .= '</a>';
+        $item_output .= $args->after;
+
+        $output .= apply_filters( 'walker_nav_menu_start_el', $item_output, $item, $depth, $args );
+    }
+}
+register_nav_menu('menu', 'Меню в шапке');
 
 //Добавляем виджет в сайдбар
-register_sidebar(array(
-     				'name' => 'Сайдбар',
-     				'id' => 'sidebar',
-     				'before_widget' => '',
-     				'after_widget'  => '',
-     				'before_title'  => '',
-     				'after_title'   => ''
-                    )
-                );
+//register_sidebar(array(
+//     				'name' => 'Сайдбар',
+//     				'id' => 'sidebar',
+//     				'before_widget' => '',
+//     				'after_widget'  => '',
+//     				'before_title'  => '',
+//     				'after_title'   => ''
+//                    )
+//                );
 
-//Добавление пагинации
+/**
+ * Добавление пагинации
+ */
 function my_pagenavi() {
        global $wp_query, $wp_rewrite;
        $pages = '';
@@ -96,7 +184,9 @@ function my_pagenavi() {
 		}
 //Добавление функции в шаблон <?php my_pagenavi();
 
-//Хлебные крошки
+/**
+ * Хлебные крошки
+ */
 function dimox_breadcrumbs() {
 $showOnHome = 0; // 1 - показывать "хлебные крошки" на главной странице, 0 - не показывать
 $delimiter = '&raquo;'; // разделить между "крошками"
@@ -181,7 +271,13 @@ echo '</div>';
 }
 } // end dimox_breadcrumbs()
 
-//Функция получения записи по ID
+/**
+ * Функция получения записи по ID
+ *
+ * @param $post_id
+ *
+ * @return bool
+ */
 function get_the_content_by_id($post_id) {
   $page_data = get_page($post_id);
   if ($page_data) {
@@ -190,7 +286,9 @@ function get_the_content_by_id($post_id) {
   else return false;
 }
 
-// Вывод номера ID постов в админке
+/**
+ * Вывод номера ID постов в админке
+ */
 function ssid_column($cols) {
       $cols['ssid'] = 'ID';
       return $cols;
