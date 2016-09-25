@@ -1,11 +1,8 @@
 /*
-Theme Name: Новая тема
-Theme URI:
+Theme Name: Rdial
 Author: Topref
-Author URI
-Description:
+Description: Шбблон туристического сайта.
 Version: 1.0
-License:
 */
 
 /* ==========================================================================
@@ -1838,6 +1835,10 @@ footer {
 }
 .footer__logo {
     display: table-cell;
+    width: 122px;
+}
+.footer__logo a {
+    width: 100%;
 }
 .footer-text {
     display: table-cell;

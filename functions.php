@@ -10,11 +10,10 @@ require_once dirname(__FILE__ ) . '/tgm-class-activation/class-tgm-plugin-activa
 add_action('tgmpa_register','mytheme_require_plugins');
 function mytheme_require_plugins() {
     $plugins = array(
-        array(
-            'name'      => 'BuddyPress',
-            'slug'      => 'buddypress',
-            'required'  => false, // this plugin is recommended
-        )
+        'name' => 'Rus-To-Lat',
+        'slug' => 'rustolat',
+        'source' => get_stylesheet_directory().'/tgm-class-activation/plugins/rustolat.zip',
+        'required' => true,
     );
     $config = array();
     tgmpa($plugins, $config);
@@ -43,21 +42,24 @@ add_filter('show_admin_bar', '__return_false');
 
 // Подключаем скрипты и стили
 function load_style_script() {
-	wp_enqueue_style('normalize', get_template_directory_uri() . '/css/normalize.css');
-	wp_enqueue_style('bootstrap', get_template_directory_uri() . '/css/bootstrap-grid-3.3.1.min.css');
+    wp_deregister_script('jquery');
+
 	wp_enqueue_style('fonts', get_template_directory_uri() . '/css/fonts.css');
 	wp_enqueue_style('style', get_template_directory_uri() . '/style.css');
 	wp_enqueue_style('medias', get_template_directory_uri() . '/css/media.css');
-	wp_enqueue_script('modernizr', get_template_directory_uri() . '/js/modernizr-2.6.2.min.js');
-	wp_enqueue_script('jquerys', get_template_directory_uri() . '/js/jquery-1.11.1.min.js');
-	wp_enqueue_script('main', get_template_directory_uri() . '/js/main.js');
-	wp_enqueue_script('plugins', get_template_directory_uri() . '/js/plugins.js');
+
+    wp_enqueue_script('maps', 'http://maps.google.com/maps/api/js?sensor=false');
+    wp_enqueue_script('jquery', 'http://code.jquery.com/jquery-2.1.4.min.js');
+    wp_enqueue_script('jquery-ui', 'http://code.jquery.com/ui/1.12.0-beta.1/jquery-ui.min.js');
+    wp_enqueue_script('slick', get_template_directory_uri() . '/js/slick.min.js');
+    wp_enqueue_script('script', get_template_directory_uri() . '/js/script.js');
+    wp_enqueue_script('main', get_template_directory_uri() . '/js/main.js');
 }
 add_action('wp_enqueue_scripts', 'load_style_script');
 
 // Добавляем поддержку миниатюр
 add_theme_support('post-thumbnails');
-set_post_thumbnail_size(150,150);
+set_post_thumbnail_size(192,193);
 
 // Регистрация меню в футере
 register_nav_menu('menu', 'Меню в футере');
